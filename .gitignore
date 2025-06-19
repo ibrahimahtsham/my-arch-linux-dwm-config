@@ -1,0 +1,13 @@
+# Compiled files
+*.o
+dwm/dwm
+st/st
+slstatus/slstatus
+
+# Backup files
+*.orig
+*.rej
+*~
+
+# Other files you may want to ignore
+.DS_Store

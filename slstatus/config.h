@@ -66,18 +66,27 @@ static const char unknown_str[] = "n/a";
  */
 static const struct arg args[] = {
     /* function            format           argument */
-    { battery_perc,        "BAT %s%% ",     "BAT0" },      // Battery percentage (change "BAT0" if needed)
-    { battery_state,       "%s ",           "BAT0" },      // Battery state (+, -, o)
+    // Bluetooth status first
+    { run_command,         "BT %s ",        "if bluetoothctl info | grep -q 'Connected: yes'; then echo 'CON'; elif bluetoothctl show | grep -q 'Powered: yes'; then echo 'ON'; else echo 'OFF'; fi" },
     
-    // Add brightness indicator (using brightnessctl)
+    // Brightness indicator
     { run_command,         "BRI %s%% ",     "brightnessctl -m | cut -d',' -f4 | tr -d '%'" },
     
-    // Add volume indicator
-    { run_command,         "VOL %s ",       "amixer get Master | grep -o '[0-9]*%' | head -1" },
+    // CPU and RAM usage
+    { cpu_perc,            "CPU %s%% ",     NULL },
+    { ram_perc,            "RAM %s%% ",     NULL },
     
-    { datetime,            "%s ",           "%I:%M %p" },  // Time in 12-hour format with am/pm
-    { cpu_perc,            "CPU %s%% ",     NULL },        // CPU usage percentage
-    { ram_perc,            "RAM %s%% ",     NULL },        // RAM usage percentage
-    { wifi_essid,          "WiFi %s ",      "wlan0" },     // WiFi ESSID (change "wlan0" if needed)
-    { wifi_perc,           "%s%%",          "wlan0" },     // WiFi signal strength
+    // WiFi information
+    { wifi_essid,          "WiFi %s ",      "wlan0" },
+    { wifi_perc,           "%s%% ",         "wlan0" },
+    
+    // Volume indicator
+    { run_command,         "VOL %s ",       "amixer get Master | grep -q 'off' && echo MUTE || amixer get Master | awk -F'[][]' '/Left:/{print $2}'" },
+    
+    // Battery information
+    { battery_perc,        "BAT %s%% ",     "BAT0" },
+    { battery_state,       "%s ",           "BAT0" },
+    
+    // Time with date in "1st Jan 2025" format
+    { datetime,            "%s",            "%e %b %Y %I:%M %p" },
 };

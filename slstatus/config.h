@@ -68,6 +68,13 @@ static const struct arg args[] = {
     /* function            format           argument */
     { battery_perc,        "BAT %s%% ",     "BAT0" },      // Battery percentage (change "BAT0" if needed)
     { battery_state,       "%s ",           "BAT0" },      // Battery state (+, -, o)
+    
+    // Add brightness indicator (using brightnessctl)
+    { run_command,         "BRI %s%% ",     "brightnessctl -m | cut -d',' -f4 | tr -d '%'" },
+    
+    // Add volume indicator
+    { vol_perc,           "VOL %s%% ",      "/dev/mixer" },
+    
     { datetime,            "%s ",           "%I:%M %p" },  // Time in 12-hour format with am/pm
     { cpu_perc,            "CPU %s%% ",     NULL },        // CPU usage percentage
     { ram_perc,            "RAM %s%% ",     NULL },        // RAM usage percentage

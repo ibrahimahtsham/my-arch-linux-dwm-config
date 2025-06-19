@@ -61,9 +61,9 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *termcmd[]  = { "st", NULL };
 
 /* Volume control */
-static const char *upvol[]   = { "amixer", "set", "Master", "5%+", NULL };
-static const char *downvol[] = { "amixer", "set", "Master", "5%-", NULL };
-static const char *mutevol[] = { "amixer", "set", "Master", "toggle", NULL };
+static const char *upvol[]   = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
+static const char *downvol[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
+static const char *mutevol[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
 
 /* Brightness control */
 static const char *brightnessup[]   = { "brightnessctl", "set", "5%+", NULL };

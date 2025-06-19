@@ -73,7 +73,7 @@ static const struct arg args[] = {
     { run_command,         "BRI %s%% ",     "brightnessctl -m | cut -d',' -f4 | tr -d '%'" },
     
     // Add volume indicator
-    { vol_perc,           "VOL %s%% ",      "/dev/mixer" },
+    { run_command,         "VOL %s ",       "amixer get Master | grep -o '[0-9]*%' | head -1" },
     
     { datetime,            "%s ",           "%I:%M %p" },  // Time in 12-hour format with am/pm
     { cpu_perc,            "CPU %s%% ",     NULL },        // CPU usage percentage

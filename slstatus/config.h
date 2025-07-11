@@ -64,29 +64,30 @@ static const char unknown_str[] = "n/a";
  * wifi_essid          WiFi ESSID                      interface name (wlan0)
  * wifi_perc           WiFi signal in percent          interface name (wlan0)
  */
+
 static const struct arg args[] = {
     /* function            format           argument */
-    // Bluetooth status first
-    { run_command,         "BT %s ",        "if bluetoothctl info | grep -q 'Connected: yes'; then echo 'CON'; elif bluetoothctl show | grep -q 'Powered: yes'; then echo 'ON'; else echo 'OFF'; fi" },
+    // Bluetooth status (BT: CON/ON/OFF)
+    { run_command,         "BT:%s | ",      "if bluetoothctl info | grep -q 'Connected: yes'; then echo 'CON'; elif bluetoothctl show | grep -q 'Powered: yes'; then echo 'ON'; else echo 'OFF'; fi" },
     
-    // Brightness indicator
-    { run_command,         "BRI %s%% ",     "brightnessctl -m | cut -d',' -f4 | tr -d '%'" },
+    // Brightness (BRI:XX%)
+    { run_command,         "BRI:%s%% | ",   "brightnessctl -m | cut -d',' -f4 | tr -d '%'" },
     
-    // CPU and RAM usage
-    { cpu_perc,            "CPU %s%% ",     NULL },
-    { ram_perc,            "RAM %s%% ",     NULL },
+    // CPU usage and temperature (CPU:XX% XX°C)
+    { run_command,         "CPU:%s | ",     "echo \"$(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | sed 's/%us,//')$(sensors | grep 'Package id 0' | awk '{print $4}' | sed 's/+//;s/°C/°/')\"" },
     
-    // WiFi information
-    { wifi_essid,          "WiFi %s ",      "wlan0" },
-    { wifi_perc,           "%s%% ",         "wlan0" },
+    // RAM usage (RAM:XX%)
+    { ram_perc,            "RAM:%s%% | ",   NULL },
     
-    // Volume indicator
-    { run_command,         "VOL %s ",       "amixer get Master | grep -q 'off' && echo MUTE || amixer get Master | awk -F'[][]' '/Left:/{print $2}'" },
+    // WiFi (SSID XX% or DISC)
+    { run_command,         "%s | ",         "ssid=$(iwgetid -r 2>/dev/null); if [ -n \"$ssid\" ]; then signal=$(cat /proc/net/wireless | tail -1 | awk '{print int($3*100/70)}' 2>/dev/null); echo \"$ssid:${signal:-?}%\"; else echo 'WIFI:DISC'; fi" },
     
-    // Battery information
-    { battery_perc,        "BAT %s%% ",     "BAT0" },
-    { battery_state,       "%s ",           "BAT0" },
+    // Volume (VOL:XX% or MUTE) - Fixed for all audio devices
+    { run_command,         "VOL:%s | ",     "if pactl get-sink-mute @DEFAULT_SINK@ | grep -q 'yes'; then echo 'MUTE'; else pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\\d+%' | head -1; fi" },
     
-    // Time with date in "1st Jan 2025" format
-    { datetime,            "%s",            "%e %b %Y %I:%M %p" },
+    // Battery (BAT:XX% +/-)
+    { run_command,         "BAT:%s | ",     "acpi -b | awk '{gsub(/,/, \"\"); if($3==\"Charging\") print $4\"+\"; else if($3==\"Discharging\") print $4\"-\"; else print $4}'" },
+    
+    // Date and time (Jan 1 2025 HH:MMAM/PM)
+    { datetime,            "%s",            "%b %-d %Y %I:%M%p" },
 };
